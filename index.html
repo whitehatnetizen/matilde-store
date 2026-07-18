@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en" data-lang="en" data-dir="b" data-accent="sage">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Matilde</title>
+<style>
+/* ---------- fonts (self-hosted) ---------- */
+@font-face{font-family:'General Sans';src:url('./fonts/GeneralSans-400-normal.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'General Sans';src:url('./fonts/GeneralSans-500-normal.woff2') format('woff2');font-weight:500;font-display:swap}
+@font-face{font-family:'General Sans';src:url('./fonts/GeneralSans-600-normal.woff2') format('woff2');font-weight:600;font-display:swap}
+@font-face{font-family:'Zodiak';src:url('./fonts/Zodiak-400-normal.woff2') format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Zodiak';src:url('./fonts/Zodiak-400-italic.woff2') format('woff2');font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:'Zodiak';src:url('./fonts/Zodiak-700-normal.woff2') format('woff2');font-weight:700;font-display:swap}
+
+/* ---------- tokens ---------- */
+:root{
+  --base:#F5F4EF;
+  --ink:#26241F;
+  --ink-soft:#5C584E;
+  --line:#D8D5CC;
+  --accent:#F85058;         /* coral, sampled from the Matilde logo dot */
+  --logo-accent:var(--accent);
+  --logo-ink:var(--ink);
+  --body-font:'General Sans',system-ui,sans-serif;
+  --display-font:'General Sans',system-ui,sans-serif;
+  --h1-weight:600;
+  --h2-weight:600;
+  --h1-tracking:-0.02em;
+  --measure:34rem;
+}
+html[data-accent="sage"]{--accent:#6E7F5C}
+html[data-accent="plum"]{--accent:#7A6478}
+html[data-accent="mint"]{--accent:#2E9C77}
+html[data-dir="b"]{
+  --display-font:'Zodiak',Georgia,serif;
+  --h1-weight:400;
+  --h2-weight:700;
+  --h1-tracking:0;
+}
+
+/* ---------- language switch ---------- */
+html[data-lang="en"] [data-l="es"]{display:none}
+html[data-lang="es"] [data-l="en"]{display:none}
+
+/* ---------- reset-ish ---------- */
+*{margin:0;padding:0;box-sizing:border-box}
+img{display:block;max-width:100%;height:auto}
+a{color:inherit}
+body{
+  background:var(--base);
+  color:var(--ink);
+  font-family:var(--body-font);
+  font-size:1.0625rem;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1160px;margin:0 auto;padding:0 clamp(1.25rem,4vw,3rem)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.skip{position:absolute;left:-9999px;top:0;background:var(--ink);color:var(--base);padding:.5rem 1rem}
+.skip:focus{left:0;z-index:10}
+
+/* ---------- announcement bar ---------- */
+.announce{background:var(--ink);color:var(--base);font-size:.8rem;text-align:center;padding:.45rem 1rem;border-top:4px solid var(--accent)}
+
+/* ---------- masthead ---------- */
+header{border-bottom:1px solid var(--line)}
+.mast-right{display:flex;align-items:center;gap:clamp(1rem,2.5vw,1.8rem)}
+.cart-btn{position:relative;background:none;border:none;cursor:pointer;padding:.35rem;color:var(--ink);display:flex}
+.cart-btn svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.cart-count{position:absolute;top:-2px;right:-4px;background:var(--accent);color:#fff;font-size:.66rem;font-weight:600;min-width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:0 3px}
+.cart-count[data-empty="true"]{display:none}
+
+/* ---------- cart drawer ---------- */
+.overlay{position:fixed;inset:0;background:rgba(38,36,31,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,92vw);background:var(--base);border-left:1px solid var(--line);z-index:31;transform:translateX(102%);transition:transform .25s;display:flex;flex-direction:column}
+.drawer.open{transform:none}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.4rem;border-bottom:1px solid var(--line)}
+.drawer-head h3{font-family:var(--display-font);font-weight:var(--h2-weight);font-size:1.2rem}
+.drawer-close{background:none;border:none;cursor:pointer;font:inherit;font-size:1.5rem;line-height:1;padding:.2rem .5rem;color:var(--ink)}
+.drawer-items{flex:1;overflow-y:auto;padding:1rem 1.4rem}
+.drawer-empty{color:var(--ink-soft);padding:1.5rem 0}
+.ci{display:grid;grid-template-columns:64px 1fr auto;gap:.9rem;align-items:center;padding:.8rem 0;border-bottom:1px solid var(--line)}
+.ci img{width:64px;height:64px;object-fit:cover}
+.ci .ci-name{font-size:.92rem;font-weight:500}
+.ci .ci-qty{font-size:.8rem;color:var(--ink-soft)}
+.ci-remove{background:none;border:none;cursor:pointer;font:inherit;font-size:.78rem;color:var(--ink-soft);padding:.15rem 0;text-decoration:underline}
+.ci-remove:hover{color:var(--accent)}
+.ci .ci-price{font-variant-numeric:tabular-nums}
+.drawer-foot{border-top:1px solid var(--line);padding:1.1rem 1.4rem 1.4rem}
+.subtotal{display:flex;justify-content:space-between;font-weight:600;margin-bottom:.9rem}
+.checkout{width:100%;background:var(--ink);color:var(--base);border:none;padding:.85rem;font:inherit;font-weight:600;cursor:not-allowed;opacity:.55;border-radius:2px}
+.drawer-note{font-size:.78rem;color:var(--ink-soft);margin-top:.6rem;text-align:center}
+
+/* ---------- image lightbox ---------- */
+.imgbtn{display:block;width:100%;padding:0;border:none;background:none;cursor:zoom-in}
+.lightbox{position:fixed;inset:0;background:rgba(38,36,31,.9);z-index:40;display:none;align-items:center;justify-content:center;flex-direction:column;padding:2.5rem 1rem 1.5rem}
+.lightbox.open{display:flex}
+.lb-img{max-width:min(92vw,860px);max-height:70vh;object-fit:contain}
+.lb-cap{color:var(--base);display:flex;align-items:center;gap:1.4rem;margin-top:1.1rem;flex-wrap:wrap;justify-content:center}
+.lb-name{font-weight:600}
+.lb-price{opacity:.85;font-variant-numeric:tabular-nums}
+.lb-count{font-size:.8rem;opacity:.65}
+.lb-add{background:none;border:1px solid var(--base);color:var(--base);padding:.45rem 1rem;font:inherit;font-size:.85rem;font-weight:500;cursor:pointer;border-radius:2px}
+.lb-add:hover{border-color:var(--accent);color:var(--accent)}
+.lb-close{position:absolute;top:.7rem;right:1.1rem;background:none;border:none;color:var(--base);font-size:2.1rem;cursor:pointer;line-height:1;padding:.3rem .6rem}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--base);font-size:2.6rem;cursor:pointer;padding:.5rem .9rem;line-height:1}
+.lb-prev{left:.4rem}
+.lb-next{right:.4rem}
+.lb-nav[hidden]{display:none}
+.mast{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 0}
+.brand{display:flex;align-items:center;gap:.7rem;text-decoration:none}
+.brand img{height:52px;width:auto}
+nav ul{display:flex;gap:clamp(1.1rem,3vw,2.2rem);list-style:none}
+nav a{text-decoration:none;font-size:.95rem;font-weight:500;padding:.2rem 0;border-bottom:2px solid transparent}
+nav a:hover{border-bottom-color:var(--accent)}
+html[data-dir="a"] nav a{text-transform:uppercase;font-size:.78rem;letter-spacing:.13em}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:5fr 6fr;gap:clamp(2rem,5vw,4.5rem);align-items:center;padding:clamp(2.5rem,6vw,5.5rem) 0}
+h1{
+  font-family:var(--display-font);
+  font-weight:var(--h1-weight);
+  letter-spacing:var(--h1-tracking);
+  font-size:clamp(2rem,4.6vw,3.4rem);
+  line-height:1.12;
+  max-width:12em;
+}
+.hero .sub{margin-top:1.2rem;color:var(--ink-soft);max-width:var(--measure)}
+.madeto{margin-top:1.1rem;font-weight:500;border-left:3px solid var(--accent);padding-left:.75rem;max-width:var(--measure)}
+.cta{
+  display:inline-block;margin-top:2rem;
+  font-size:1.15rem;font-weight:600;text-decoration:none;
+  color:var(--ink);border-bottom:3px solid var(--accent);padding-bottom:.15rem;
+}
+.cta:hover{color:var(--accent)}
+.hero-img img{aspect-ratio:3/4;object-fit:cover;width:100%}
+
+/* ---------- section headings with stitch mark ---------- */
+section{padding:clamp(2.5rem,6vw,4.5rem) 0;border-top:1px solid var(--line)}
+h2{
+  font-family:var(--display-font);font-weight:var(--h2-weight);
+  font-size:clamp(1.5rem,2.8vw,2.1rem);margin-bottom:clamp(1.5rem,3vw,2.5rem);
+  display:flex;align-items:center;gap:.65rem;
+}
+.drop{width:.8em;height:.8em;flex:none;fill:var(--accent)}
+
+/* ---------- product grid ---------- */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(1rem,2.5vw,2rem)}
+.card{grid-column:span 4;text-decoration:none}
+.card:nth-child(1){grid-column:span 7}
+.card:nth-child(2){grid-column:span 5;align-self:end}
+.card:nth-child(1) img{aspect-ratio:4/5}
+.card:nth-child(2) img{aspect-ratio:4/5}
+.card img{width:100%;aspect-ratio:1/1;object-fit:cover;background:#e9e7e0}
+.card:hover img{filter:brightness(.96)}
+.card .row{display:flex;justify-content:space-between;gap:1rem;margin-top:.65rem;font-size:.95rem}
+.card .name{font-weight:500}
+.card:hover .name{border-bottom:2px solid var(--accent)}
+.card .price{color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.card.wide{grid-column:span 12}
+.card.wide img{aspect-ratio:21/9}
+.add-btn{margin-top:.55rem;background:none;border:1px solid var(--ink);color:var(--ink);font:inherit;font-size:.82rem;font-weight:500;padding:.42rem .9rem;cursor:pointer;border-radius:2px}
+.add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.add-btn.added{border-color:var(--accent);color:var(--accent)}
+
+/* ---------- maker ---------- */
+.maker{display:grid;grid-template-columns:5fr 6fr;gap:clamp(2rem,5vw,4.5rem);align-items:center}
+.maker img{aspect-ratio:4/5;object-fit:cover;width:100%}
+.maker p{max-width:var(--measure);color:var(--ink-soft)}
+.maker p + p{margin-top:1rem}
+.maker .sig{margin-top:1.4rem;font-family:var(--display-font);font-size:1.15rem;color:var(--ink)}
+
+/* ---------- contact ---------- */
+.contact{display:grid;grid-template-columns:auto 1fr;gap:clamp(2rem,5vw,4rem);align-items:center}
+.contact-logo{width:clamp(160px,20vw,230px);height:auto}
+.contact ul{list-style:none;margin-top:1.2rem}
+.contact li{padding:.35rem 0}
+.contact a{text-decoration:none;font-weight:500;border-bottom:2px solid var(--accent)}
+.contact a.wa{font-size:1.15rem;font-weight:600;border-bottom-width:3px}
+.contact a:hover{color:var(--accent)}
+.contact .note{margin-top:1.2rem;color:var(--ink-soft);max-width:var(--measure)}
+
+/* ---------- footer ---------- */
+footer{border-top:1px solid var(--line);padding:2.5rem 0 5.5rem;font-size:.88rem}
+.foot-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;padding-bottom:2rem}
+.foot-cols h4{font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;margin-bottom:.7rem}
+.foot-cols ul{list-style:none}
+.foot-cols li{padding:.22rem 0}
+.foot-cols a{text-decoration:none;color:var(--ink-soft)}
+.foot-cols a:hover{color:var(--accent)}
+.fineprint{display:flex;flex-wrap:wrap;gap:.4rem 2rem;justify-content:space-between;border-top:1px solid var(--line);padding-top:1.4rem;font-size:.82rem;color:var(--ink-soft)}
+
+/* ---------- preview controls (mockup tool, not part of the design) ---------- */
+.preview{
+  position:fixed;right:.9rem;bottom:.9rem;z-index:20;
+  background:var(--ink);color:var(--base);
+  padding:.6rem .8rem;font-size:.72rem;line-height:1.9;
+  display:flex;flex-direction:column;gap:.1rem;border-radius:4px;
+  max-width:15rem;
+}
+.preview .lbl{opacity:.65;margin-right:.35rem}
+.preview button{
+  font:inherit;background:none;border:1px solid transparent;color:inherit;
+  padding:.05rem .5rem;cursor:pointer;opacity:.65;border-radius:3px;
+}
+.preview button[aria-pressed="true"]{opacity:1;border-color:var(--base)}
+.preview .note{opacity:.55;margin-top:.25rem}
+
+/* ---------- motion & mobile ---------- */
+a,button,img{transition:color .15s,border-color .15s,filter .15s,opacity .15s}
+@media (prefers-reduced-motion:reduce){a,button,img,.drawer,.overlay{transition:none}}
+@media (max-width:760px){
+  .hero,.maker,.contact{grid-template-columns:1fr}
+  .hero-img{order:-1}
+  .card,.card:nth-child(1),.card:nth-child(2){grid-column:span 6}
+  .card.wide{grid-column:span 12}
+  nav ul{gap:.9rem}
+  .mast{flex-wrap:wrap;gap:.6rem}
+  .mast-right{gap:.9rem}
+  .foot-cols{grid-template-columns:1fr 1fr}
+  .preview{
+    left:0;right:0;bottom:0;max-width:none;border-radius:0;
+    flex-direction:row;flex-wrap:wrap;align-items:center;
+    gap:.1rem 1.1rem;padding:.45rem .8rem;line-height:1.7;
+  }
+  .preview .note{display:none}
+}
+@media (max-width:420px){
+  .card,.card:nth-child(1),.card:nth-child(2),.card.wide{grid-column:span 12}
+  nav ul{flex-wrap:wrap;gap:.5rem .9rem}
+  html[data-dir="a"] nav a{font-size:.72rem;letter-spacing:.09em}
+  nav a{font-size:.88rem}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main"><span data-l="en">Skip to content</span><span data-l="es">Ir al contenido</span></a>
+
+<!-- hidden symbols: paint drop + cross-stitched plate (plate currently unused, kept for reuse) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="paintdrop" viewBox="0 0 20 20"><path d="M9.6 2.1 C13.5 1.5 17.2 4.3 17.8 8.1 C18.4 12 15.9 16.4 11.9 17.5 C8 18.5 3.8 16.2 2.6 12.4 C1.5 8.7 3.6 4.5 7.1 3 C7.9 2.6 8.7 2.2 9.6 2.1 Z"/><circle cx="18.4" cy="14.6" r="1.15"/><circle cx="16.2" cy="18" r="0.7"/></symbol>
+<symbol id="plate" viewBox="0 0 230 230">
+<path d="M0 0V230M0 0H230M10 0V230M0 10H230M20 0V230M0 20H230M30 0V230M0 30H230M40 0V230M0 40H230M50 0V230M0 50H230M60 0V230M0 60H230M70 0V230M0 70H230M80 0V230M0 80H230M90 0V230M0 90H230M100 0V230M0 100H230M110 0V230M0 110H230M120 0V230M0 120H230M130 0V230M0 130H230M140 0V230M0 140H230M150 0V230M0 150H230M160 0V230M0 160H230M170 0V230M0 170H230M180 0V230M0 180H230M190 0V230M0 190H230M200 0V230M0 200H230M210 0V230M0 210H230M220 0V230M0 220H230M230 0V230M0 230H230" stroke="var(--logo-ink,#26241F)" stroke-opacity="0.07" stroke-width="0.6" fill="none"/>
+<path d="M1.9 1.9L8.1 8.1M1.9 8.1L8.1 1.9M1.9 21.9L8.1 28.1M1.9 28.1L8.1 21.9M1.9 41.9L8.1 48.1M1.9 48.1L8.1 41.9M1.9 61.9L8.1 68.1M1.9 68.1L8.1 61.9M1.9 81.9L8.1 88.1M1.9 88.1L8.1 81.9M1.9 101.9L8.1 108.1M1.9 108.1L8.1 101.9M1.9 121.9L8.1 128.1M1.9 128.1L8.1 121.9M1.9 141.9L8.1 148.1M1.9 148.1L8.1 141.9M1.9 161.9L8.1 168.1M1.9 168.1L8.1 161.9M1.9 181.9L8.1 188.1M1.9 188.1L8.1 181.9M1.9 201.9L8.1 208.1M1.9 208.1L8.1 201.9M1.9 221.9L8.1 228.1M1.9 228.1L8.1 221.9M21.9 1.9L28.1 8.1M21.9 8.1L28.1 1.9M21.9 221.9L28.1 228.1M21.9 228.1L28.1 221.9M31.9 91.9L38.1 98.1M31.9 98.1L38.1 91.9M31.9 101.9L38.1 108.1M31.9 108.1L38.1 101.9M31.9 111.9L38.1 118.1M31.9 118.1L38.1 111.9M31.9 121.9L38.1 128.1M31.9 128.1L38.1 121.9M31.9 131.9L38.1 138.1M31.9 138.1L38.1 131.9M41.9 1.9L48.1 8.1M41.9 8.1L48.1 1.9M41.9 71.9L48.1 78.1M41.9 78.1L48.1 71.9M41.9 151.9L48.1 158.1M41.9 158.1L48.1 151.9M41.9 221.9L48.1 228.1M41.9 228.1L48.1 221.9M51.9 61.9L58.1 68.1M51.9 68.1L58.1 61.9M51.9 161.9L58.1 168.1M51.9 168.1L58.1 161.9M61.9 1.9L68.1 8.1M61.9 8.1L68.1 1.9M61.9 51.9L68.1 58.1M61.9 58.1L68.1 51.9M61.9 171.9L68.1 178.1M61.9 178.1L68.1 171.9M61.9 221.9L68.1 228.1M61.9 228.1L68.1 221.9M71.9 41.9L78.1 48.1M71.9 48.1L78.1 41.9M71.9 181.9L78.1 188.1M71.9 188.1L78.1 181.9M81.9 1.9L88.1 8.1M81.9 8.1L88.1 1.9M81.9 221.9L88.1 228.1M81.9 228.1L88.1 221.9M91.9 31.9L98.1 38.1M91.9 38.1L98.1 31.9M91.9 111.9L98.1 118.1M91.9 118.1L98.1 111.9M91.9 191.9L98.1 198.1M91.9 198.1L98.1 191.9M101.9 1.9L108.1 8.1M101.9 8.1L108.1 1.9M101.9 31.9L108.1 38.1M101.9 38.1L108.1 31.9M101.9 101.9L108.1 108.1M101.9 108.1L108.1 101.9M101.9 121.9L108.1 128.1M101.9 128.1L108.1 121.9M101.9 191.9L108.1 198.1M101.9 198.1L108.1 191.9M101.9 221.9L108.1 228.1M101.9 228.1L108.1 221.9M111.9 31.9L118.1 38.1M111.9 38.1L118.1 31.9M111.9 91.9L118.1 98.1M111.9 98.1L118.1 91.9M111.9 131.9L118.1 138.1M111.9 138.1L118.1 131.9M111.9 191.9L118.1 198.1M111.9 198.1L118.1 191.9M121.9 1.9L128.1 8.1M121.9 8.1L128.1 1.9M121.9 31.9L128.1 38.1M121.9 38.1L128.1 31.9M121.9 101.9L128.1 108.1M121.9 108.1L128.1 101.9M121.9 121.9L128.1 128.1M121.9 128.1L128.1 121.9M121.9 191.9L128.1 198.1M121.9 198.1L128.1 191.9M121.9 221.9L128.1 228.1M121.9 228.1L128.1 221.9M131.9 31.9L138.1 38.1M131.9 38.1L138.1 31.9M131.9 111.9L138.1 118.1M131.9 118.1L138.1 111.9M131.9 191.9L138.1 198.1M131.9 198.1L138.1 191.9M141.9 1.9L148.1 8.1M141.9 8.1L148.1 1.9M141.9 221.9L148.1 228.1M141.9 228.1L148.1 221.9M151.9 41.9L158.1 48.1M151.9 48.1L158.1 41.9M151.9 181.9L158.1 188.1M151.9 188.1L158.1 181.9M161.9 1.9L168.1 8.1M161.9 8.1L168.1 1.9M161.9 51.9L168.1 58.1M161.9 58.1L168.1 51.9M161.9 171.9L168.1 178.1M161.9 178.1L168.1 171.9M161.9 221.9L168.1 228.1M161.9 228.1L168.1 221.9M171.9 61.9L178.1 68.1M171.9 68.1L178.1 61.9M171.9 161.9L178.1 168.1M171.9 168.1L178.1 161.9M181.9 1.9L188.1 8.1M181.9 8.1L188.1 1.9M181.9 71.9L188.1 78.1M181.9 78.1L188.1 71.9M181.9 151.9L188.1 158.1M181.9 158.1L188.1 151.9M181.9 221.9L188.1 228.1M181.9 228.1L188.1 221.9M191.9 91.9L198.1 98.1M191.9 98.1L198.1 91.9M191.9 101.9L198.1 108.1M191.9 108.1L198.1 101.9M191.9 111.9L198.1 118.1M191.9 118.1L198.1 111.9M191.9 121.9L198.1 128.1M191.9 128.1L198.1 121.9M191.9 131.9L198.1 138.1M191.9 138.1L198.1 131.9M201.9 1.9L208.1 8.1M201.9 8.1L208.1 1.9M201.9 221.9L208.1 228.1M201.9 228.1L208.1 221.9M221.9 1.9L228.1 8.1M221.9 8.1L228.1 1.9M221.9 21.9L228.1 28.1M221.9 28.1L228.1 21.9M221.9 41.9L228.1 48.1M221.9 48.1L228.1 41.9M221.9 61.9L228.1 68.1M221.9 68.1L228.1 61.9M221.9 81.9L228.1 88.1M221.9 88.1L228.1 81.9M221.9 101.9L228.1 108.1M221.9 108.1L228.1 101.9M221.9 121.9L228.1 128.1M221.9 128.1L228.1 121.9M221.9 141.9L228.1 148.1M221.9 148.1L228.1 141.9M221.9 161.9L228.1 168.1M221.9 168.1L228.1 161.9M221.9 181.9L228.1 188.1M221.9 188.1L228.1 181.9M221.9 201.9L228.1 208.1M221.9 208.1L228.1 201.9M221.9 221.9L228.1 228.1M221.9 228.1L228.1 221.9" stroke="var(--logo-ink,#26241F)" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+<path d="M11.9 81.9L18.1 88.1M11.9 88.1L18.1 81.9M11.9 91.9L18.1 98.1M11.9 98.1L18.1 91.9M11.9 101.9L18.1 108.1M11.9 108.1L18.1 101.9M11.9 111.9L18.1 118.1M11.9 118.1L18.1 111.9M11.9 121.9L18.1 128.1M11.9 128.1L18.1 121.9M11.9 131.9L18.1 138.1M11.9 138.1L18.1 131.9M11.9 141.9L18.1 148.1M11.9 148.1L18.1 141.9M21.9 61.9L28.1 68.1M21.9 68.1L28.1 61.9M21.9 71.9L28.1 78.1M21.9 78.1L28.1 71.9M21.9 81.9L28.1 88.1M21.9 88.1L28.1 81.9M21.9 91.9L28.1 98.1M21.9 98.1L28.1 91.9M21.9 101.9L28.1 108.1M21.9 108.1L28.1 101.9M21.9 111.9L28.1 118.1M21.9 118.1L28.1 111.9M21.9 121.9L28.1 128.1M21.9 128.1L28.1 121.9M21.9 131.9L28.1 138.1M21.9 138.1L28.1 131.9M21.9 141.9L28.1 148.1M21.9 148.1L28.1 141.9M21.9 151.9L28.1 158.1M21.9 158.1L28.1 151.9M21.9 161.9L28.1 168.1M21.9 168.1L28.1 161.9M31.9 51.9L38.1 58.1M31.9 58.1L38.1 51.9M31.9 61.9L38.1 68.1M31.9 68.1L38.1 61.9M31.9 161.9L38.1 168.1M31.9 168.1L38.1 161.9M31.9 171.9L38.1 178.1M31.9 178.1L38.1 171.9M41.9 41.9L48.1 48.1M41.9 48.1L48.1 41.9M41.9 51.9L48.1 58.1M41.9 58.1L48.1 51.9M41.9 171.9L48.1 178.1M41.9 178.1L48.1 171.9M41.9 181.9L48.1 188.1M41.9 188.1L48.1 181.9M51.9 31.9L58.1 38.1M51.9 38.1L58.1 31.9M51.9 41.9L58.1 48.1M51.9 48.1L58.1 41.9M51.9 181.9L58.1 188.1M51.9 188.1L58.1 181.9M51.9 191.9L58.1 198.1M51.9 198.1L58.1 191.9M61.9 21.9L68.1 28.1M61.9 28.1L68.1 21.9M61.9 31.9L68.1 38.1M61.9 38.1L68.1 31.9M61.9 191.9L68.1 198.1M61.9 198.1L68.1 191.9M61.9 201.9L68.1 208.1M61.9 208.1L68.1 201.9M71.9 21.9L78.1 28.1M71.9 28.1L78.1 21.9M71.9 111.9L78.1 118.1M71.9 118.1L78.1 111.9M71.9 201.9L78.1 208.1M71.9 208.1L78.1 201.9M81.9 11.9L88.1 18.1M81.9 18.1L88.1 11.9M81.9 21.9L88.1 28.1M81.9 28.1L88.1 21.9M81.9 101.9L88.1 108.1M81.9 108.1L88.1 101.9M81.9 121.9L88.1 128.1M81.9 128.1L88.1 121.9M81.9 201.9L88.1 208.1M81.9 208.1L88.1 201.9M81.9 211.9L88.1 218.1M81.9 218.1L88.1 211.9M91.9 11.9L98.1 18.1M91.9 18.1L98.1 11.9M91.9 21.9L98.1 28.1M91.9 28.1L98.1 21.9M91.9 91.9L98.1 98.1M91.9 98.1L98.1 91.9M91.9 131.9L98.1 138.1M91.9 138.1L98.1 131.9M91.9 201.9L98.1 208.1M91.9 208.1L98.1 201.9M91.9 211.9L98.1 218.1M91.9 218.1L98.1 211.9M101.9 11.9L108.1 18.1M101.9 18.1L108.1 11.9M101.9 21.9L108.1 28.1M101.9 28.1L108.1 21.9M101.9 81.9L108.1 88.1M101.9 88.1L108.1 81.9M101.9 141.9L108.1 148.1M101.9 148.1L108.1 141.9M101.9 201.9L108.1 208.1M101.9 208.1L108.1 201.9M101.9 211.9L108.1 218.1M101.9 218.1L108.1 211.9M111.9 11.9L118.1 18.1M111.9 18.1L118.1 11.9M111.9 21.9L118.1 28.1M111.9 28.1L118.1 21.9M111.9 71.9L118.1 78.1M111.9 78.1L118.1 71.9M111.9 111.9L118.1 118.1M111.9 118.1L118.1 111.9M111.9 151.9L118.1 158.1M111.9 158.1L118.1 151.9M111.9 201.9L118.1 208.1M111.9 208.1L118.1 201.9M111.9 211.9L118.1 218.1M111.9 218.1L118.1 211.9M121.9 11.9L128.1 18.1M121.9 18.1L128.1 11.9M121.9 21.9L128.1 28.1M121.9 28.1L128.1 21.9M121.9 81.9L128.1 88.1M121.9 88.1L128.1 81.9M121.9 141.9L128.1 148.1M121.9 148.1L128.1 141.9M121.9 201.9L128.1 208.1M121.9 208.1L128.1 201.9M121.9 211.9L128.1 218.1M121.9 218.1L128.1 211.9M131.9 11.9L138.1 18.1M131.9 18.1L138.1 11.9M131.9 21.9L138.1 28.1M131.9 28.1L138.1 21.9M131.9 91.9L138.1 98.1M131.9 98.1L138.1 91.9M131.9 131.9L138.1 138.1M131.9 138.1L138.1 131.9M131.9 201.9L138.1 208.1M131.9 208.1L138.1 201.9M131.9 211.9L138.1 218.1M131.9 218.1L138.1 211.9M141.9 11.9L148.1 18.1M141.9 18.1L148.1 11.9M141.9 21.9L148.1 28.1M141.9 28.1L148.1 21.9M141.9 101.9L148.1 108.1M141.9 108.1L148.1 101.9M141.9 121.9L148.1 128.1M141.9 128.1L148.1 121.9M141.9 201.9L148.1 208.1M141.9 208.1L148.1 201.9M141.9 211.9L148.1 218.1M141.9 218.1L148.1 211.9M151.9 21.9L158.1 28.1M151.9 28.1L158.1 21.9M151.9 111.9L158.1 118.1M151.9 118.1L158.1 111.9M151.9 201.9L158.1 208.1M151.9 208.1L158.1 201.9M161.9 21.9L168.1 28.1M161.9 28.1L168.1 21.9M161.9 31.9L168.1 38.1M161.9 38.1L168.1 31.9M161.9 191.9L168.1 198.1M161.9 198.1L168.1 191.9M161.9 201.9L168.1 208.1M161.9 208.1L168.1 201.9M171.9 31.9L178.1 38.1M171.9 38.1L178.1 31.9M171.9 41.9L178.1 48.1M171.9 48.1L178.1 41.9M171.9 181.9L178.1 188.1M171.9 188.1L178.1 181.9M171.9 191.9L178.1 198.1M171.9 198.1L178.1 191.9M181.9 41.9L188.1 48.1M181.9 48.1L188.1 41.9M181.9 51.9L188.1 58.1M181.9 58.1L188.1 51.9M181.9 171.9L188.1 178.1M181.9 178.1L188.1 171.9M181.9 181.9L188.1 188.1M181.9 188.1L188.1 181.9M191.9 51.9L198.1 58.1M191.9 58.1L198.1 51.9M191.9 61.9L198.1 68.1M191.9 68.1L198.1 61.9M191.9 161.9L198.1 168.1M191.9 168.1L198.1 161.9M191.9 171.9L198.1 178.1M191.9 178.1L198.1 171.9M201.9 61.9L208.1 68.1M201.9 68.1L208.1 61.9M201.9 71.9L208.1 78.1M201.9 78.1L208.1 71.9M201.9 81.9L208.1 88.1M201.9 88.1L208.1 81.9M201.9 91.9L208.1 98.1M201.9 98.1L208.1 91.9M201.9 101.9L208.1 108.1M201.9 108.1L208.1 101.9M201.9 111.9L208.1 118.1M201.9 118.1L208.1 111.9M201.9 121.9L208.1 128.1M201.9 128.1L208.1 121.9M201.9 131.9L208.1 138.1M201.9 138.1L208.1 131.9M201.9 141.9L208.1 148.1M201.9 148.1L208.1 141.9M201.9 151.9L208.1 158.1M201.9 158.1L208.1 151.9M201.9 161.9L208.1 168.1M201.9 168.1L208.1 161.9M211.9 81.9L218.1 88.1M211.9 88.1L218.1 81.9M211.9 91.9L218.1 98.1M211.9 98.1L218.1 91.9M211.9 101.9L218.1 108.1M211.9 108.1L218.1 101.9M211.9 111.9L218.1 118.1M211.9 118.1L218.1 111.9M211.9 121.9L218.1 128.1M211.9 128.1L218.1 121.9M211.9 131.9L218.1 138.1M211.9 138.1L218.1 131.9M211.9 141.9L218.1 148.1M211.9 148.1L218.1 141.9" stroke="var(--logo-accent,#6E7F5C)" stroke-width="1.7" stroke-linecap="round" fill="none"/>
+</symbol>
+</defs></svg>
+
+<div class="announce"><span data-l="en">Free shipping in Australia on orders over $100</span><span data-l="es">Envío gratis en Australia en pedidos de más de $100</span></div>
+<header>
+  <div class="wrap mast">
+    <a class="brand" href="#top" aria-label="Matilde diseño textil, home">
+      <img src="assets/matilde.png" alt="Matilde diseño textil" width="607" height="348">
+    </a>
+    <div class="mast-right">
+      <nav aria-label="Main">
+        <ul>
+          <li><a href="#shop"><span data-l="en">Shop</span><span data-l="es">Tienda</span></a></li>
+          <li><a href="#maker"><span data-l="en">The maker</span><span data-l="es">La creadora</span></a></li>
+          <li><a href="#contact"><span data-l="en">Contact</span><span data-l="es">Contacto</span></a></li>
+        </ul>
+      </nav>
+      <button class="cart-btn" id="cartBtn" aria-haspopup="dialog" aria-controls="cartDrawer">
+        <span class="sr" style="position:absolute;left:-9999px"><span data-l="en">Open cart</span><span data-l="es">Abrir carrito</span></span>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 8.5h13l-1.2 11a1.6 1.6 0 0 1-1.6 1.4H8.3a1.6 1.6 0 0 1-1.6-1.4l-1.2-11Z"/><path d="M8.6 8.2V7a3.4 3.4 0 0 1 6.8 0v1.2"/></svg>
+        <span class="cart-count" id="cartCount" data-empty="true">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="wrap hero" id="top">
+    <div>
+      <h1><span data-l="en">Handmade macramé, knotted one piece at a time.</span><span data-l="es">Macramé hecho a mano, tejido nudo a nudo.</span></h1>
+      <p class="sub"><span data-l="en">Wall hangings, mirrors and small treasures for your home. Made in Brisbane, with roots in Colombia, and no two pieces are the same.</span><span data-l="es">Tapices, espejos y pequeños tesoros para tu hogar. Hechos en Brisbane, con raíces en Colombia, y no hay dos piezas iguales.</span></p>
+      <p class="madeto"><span data-l="en">Knotted to order. Your piece ships within three weeks.</span><span data-l="es">Tejido por encargo. Tu pieza se envía en tres semanas.</span></p>
+      <a class="cta" href="#shop"><span data-l="en">See the pieces</span><span data-l="es">Ver las piezas</span></a>
+    </div>
+    <div class="hero-img">
+      <button class="imgbtn" data-lb="wallhanging" aria-label="View larger image"><img src="assets/wallhanging.png" alt="Large cream macramé wall hanging with three scalloped rows of knots and long fringe, on a wooden rod against a textured wall" width="627" height="847"></button>
+    </div>
+  </div>
+
+  <section id="shop">
+    <div class="wrap">
+      <h2><svg class="drop" viewBox="0 0 20 20" aria-hidden="true"><use href="#paintdrop"/></svg><span data-l="en">The pieces</span><span data-l="es">Las piezas</span></h2>
+      <div class="grid">
+        <div class="card">
+          <button class="imgbtn" data-lb="wallhanging" aria-label="View larger image"><img src="assets/wallhanging-detail.png" alt="Detail of a cream macramé wall hanging: scalloped braid rows with rounded berry knots" width="674" height="884"></button>
+          <div class="row"><span class="name"><span data-l="en">Wall hanging</span><span data-l="es">Tapiz de pared</span></span><span class="price">$180</span></div>
+          <button class="add-btn" data-id="wallhanging" data-en="Wall hanging" data-es="Tapiz de pared" data-price="180" data-img="assets/wallhanging-detail.png"><span data-l="en">Add to cart</span><span data-l="es">Añadir al carrito</span></button>
+        </div>
+        <div class="card">
+          <button class="imgbtn" data-lb="mirror" aria-label="View larger image"><img src="assets/mirror.png" alt="Round mirror framed in cream macramé lacework with fringed edge" width="752" height="645"></button>
+          <div class="row"><span class="name"><span data-l="en">Circle mirror</span><span data-l="es">Espejo redondo</span></span><span class="price">$120</span></div>
+          <button class="add-btn" data-id="mirror" data-en="Circle mirror" data-es="Espejo redondo" data-price="120" data-img="assets/mirror.png"><span data-l="en">Add to cart</span><span data-l="es">Añadir al carrito</span></button>
+        </div>
+        <div class="card">
+          <button class="imgbtn" data-lb="tree" aria-label="View larger image"><img src="assets/tree.png" alt="Tree of life knotted inside a wooden hoop with long cream fringe" width="368" height="787"></button>
+          <div class="row"><span class="name"><span data-l="en">Tree of life</span><span data-l="es">Árbol de la vida</span></span><span class="price">$95</span></div>
+          <button class="add-btn" data-id="tree" data-en="Tree of life" data-es="Árbol de la vida" data-price="95" data-img="assets/tree.png"><span data-l="en">Add to cart</span><span data-l="es">Añadir al carrito</span></button>
+        </div>
+        <div class="card">
+          <button class="imgbtn" data-lb="dreamcatcher" aria-label="View larger image"><img src="assets/dreamcatcher.png" alt="Dreamcatcher with a taupe crochet mandala, white flowers, a pompom, and pastel ribbons" width="615" height="847"></button>
+          <div class="row"><span class="name"><span data-l="en">Dreamcatcher</span><span data-l="es">Atrapasueños</span></span><span class="price">$85</span></div>
+          <button class="add-btn" data-id="dreamcatcher" data-en="Dreamcatcher" data-es="Atrapasueños" data-price="85" data-img="assets/dreamcatcher.png"><span data-l="en">Add to cart</span><span data-l="es">Añadir al carrito</span></button>
+        </div>
+        <div class="card">
+          <button class="imgbtn" data-lb="coasters" aria-label="View larger image"><img src="assets/coasters.png" alt="Set of red crocheted apple-shaped coasters with green leaves, one under an enamel mug" width="827" height="847"></button>
+          <div class="row"><span class="name"><span data-l="en">Apple coasters, set of six</span><span data-l="es">Posavasos de manzana, juego de seis</span></span><span class="price">$45</span></div>
+          <button class="add-btn" data-id="coasters" data-en="Apple coasters, set of six" data-es="Posavasos de manzana, juego de seis" data-price="45" data-img="assets/coasters.png"><span data-l="en">Add to cart</span><span data-l="es">Añadir al carrito</span></button>
+        </div>
+        <div class="card wide">
+          <button class="imgbtn" data-lb="earrings" aria-label="View larger image"><img src="assets/earrings.png" alt="Macramé hoop earrings in lilac, mustard, green, black and cream on a glass table" width="835" height="562"></button>
+          <div class="row"><span class="name"><span data-l="en">Hoop earrings</span><span data-l="es">Aretes de argolla</span></span><span class="price">$35</span></div>
+          <button class="add-btn" data-id="earrings" data-en="Hoop earrings" data-es="Aretes de argolla" data-price="35" data-img="assets/earrings.png"><span data-l="en">Add to cart</span><span data-l="es">Añadir al carrito</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="maker">
+    <div class="wrap maker">
+      <img src="assets/knots-macro.png" alt="Macro view of twisted cream cotton cords with a fine gold thread running through them, knotted at the top" width="656" height="866">
+      <div>
+        <h2><svg class="drop" viewBox="0 0 20 20" aria-hidden="true"><use href="#paintdrop"/></svg><span data-l="en">The maker</span><span data-l="es">La creadora</span></h2>
+        <p><span data-l="en">I grew up in Colombia, where weaving is something you inherit. My grandmother's hands were never still, and neither are mine.</span><span data-l="es">Crecí en Colombia, donde el tejido se hereda. Las manos de mi abuela nunca estaban quietas, y las mías tampoco.</span></p>
+        <p><span data-l="en">Every piece starts as a spool of cotton cord on my table in Brisbane, and is tied entirely by hand, knot by knot, over many hours. What hangs on your wall is hours of work and a little of home.</span><span data-l="es">Cada pieza comienza como un rollo de cuerda de algodón sobre mi mesa en Brisbane, y se teje toda a mano, nudo a nudo, durante muchas horas. Lo que cuelga en tu pared son horas de trabajo y un poquito de mi tierra.</span></p>
+        <p class="sig">Angela</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap contact">
+      <img class="contact-logo" src="assets/matilde.png" alt="Matilde diseño textil" width="607" height="348">
+      <div>
+        <h2><svg class="drop" viewBox="0 0 20 20" aria-hidden="true"><use href="#paintdrop"/></svg><span data-l="en">Say hello</span><span data-l="es">Escríbenos</span></h2>
+        <ul>
+          <li><a href="https://wa.me/" class="wa"><span data-l="en">Message Angela on WhatsApp</span><span data-l="es">Escríbele a Angela por WhatsApp</span></a></li>
+          <li><a href="https://www.instagram.com/matilde_diseno_textil/">@matilde_diseno_textil</a></li>
+          <li><a href="#"><span data-l="en">Email</span><span data-l="es">Correo</span></a></li>
+        </ul>
+        <p class="note"><span data-l="en">Custom commissions are welcome. Tell us the colours you live with and we will knot something for them.</span><span data-l="es">Se reciben encargos personalizados. Cuéntanos los colores con los que vives y tejemos algo para ellos.</span></p>
+        <p class="note"><span data-l="en">Every piece ships gift-wrapped, with a card that tells its story.</span><span data-l="es">Cada pieza se envía envuelta para regalo, con una tarjeta que cuenta su historia.</span></p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-cols">
+      <div>
+        <h4><span data-l="en">Shop</span><span data-l="es">Tienda</span></h4>
+        <ul>
+          <li><a href="#shop"><span data-l="en">All pieces</span><span data-l="es">Todas las piezas</span></a></li>
+          <li><a href="#shop"><span data-l="en">Wall hangings</span><span data-l="es">Tapices</span></a></li>
+          <li><a href="#shop"><span data-l="en">For the home</span><span data-l="es">Para el hogar</span></a></li>
+          <li><a href="#contact"><span data-l="en">Commissions</span><span data-l="es">Encargos</span></a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span data-l="en">Help</span><span data-l="es">Ayuda</span></h4>
+        <ul>
+          <li><a href="#"><span data-l="en">Shipping and returns</span><span data-l="es">Envíos y devoluciones</span></a></li>
+          <li><a href="#"><span data-l="en">Care guide</span><span data-l="es">Guía de cuidados</span></a></li>
+          <li><a href="#contact"><span data-l="en">Contact</span><span data-l="es">Contacto</span></a></li>
+        </ul>
+      </div>
+      <div>
+        <h4><span data-l="en">Follow</span><span data-l="es">Síguenos</span></h4>
+        <ul>
+          <li><a href="https://www.instagram.com/matilde_diseno_textil/">Instagram</a></li>
+          <li><a href="https://wa.me/">WhatsApp</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="fineprint">
+      <span>Matilde diseño textil · Brisbane, Australia</span>
+      <span><span data-l="en">Sample store for review: checkout is not yet open.</span><span data-l="es">Tienda de muestra para revisión: el pago aún no está disponible.</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- cart drawer -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+  <div class="drawer-head">
+    <h3 id="cartTitle"><span data-l="en">Your cart</span><span data-l="es">Tu carrito</span></h3>
+    <button class="drawer-close" id="cartClose" aria-label="Close cart">&times;</button>
+  </div>
+  <div class="drawer-items" id="cartItems"></div>
+  <div class="drawer-foot">
+    <div class="subtotal"><span data-l="en">Subtotal</span><span data-l="es">Subtotal</span><span id="cartTotal">$0</span></div>
+    <button class="checkout" disabled><span data-l="en">Checkout</span><span data-l="es">Pagar</span></button>
+    <p class="drawer-note"><span data-l="en">Sample store: checkout is not yet open.</span><span data-l="es">Tienda de muestra: el pago aún no está disponible.</span></p>
+  </div>
+</aside>
+
+<!-- image lightbox -->
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image viewer">
+  <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
+  <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image">&#8249;</button>
+  <img class="lb-img" id="lbImg" src="" alt="">
+  <button class="lb-nav lb-next" id="lbNext" aria-label="Next image">&#8250;</button>
+  <div class="lb-cap">
+    <span class="lb-name" id="lbName"></span>
+    <span class="lb-price" id="lbPrice"></span>
+    <span class="lb-count" id="lbCount"></span>
+    <button class="lb-add" id="lbAdd"></button>
+  </div>
+</div>
+
+<!-- mockup preview controls -->
+<div class="preview" role="group" aria-label="Mockup preview controls">
+  <div><span class="lbl">Idioma / Language</span>
+    <button data-set="lang" data-val="en" aria-pressed="true">EN</button><button data-set="lang" data-val="es" aria-pressed="false">ES</button>
+  </div>
+  <div><span class="lbl">Direction</span>
+    <button data-set="dir" data-val="a" aria-pressed="false">A · sans</button><button data-set="dir" data-val="b" aria-pressed="true">B · serif</button>
+  </div>
+  <div><span class="lbl">Accent</span>
+    <button data-set="accent" data-val="coral" aria-pressed="false">Coral</button><button data-set="accent" data-val="sage" aria-pressed="true">Sage</button><button data-set="accent" data-val="plum" aria-pressed="false">Plum</button><button data-set="accent" data-val="mint" aria-pressed="false">Mint</button>
+  </div>
+  <div class="note">Prices are placeholders / Precios provisionales</div>
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  function apply(set,val){
+    root.setAttribute('data-'+set,val);
+    if(set==='lang'){root.setAttribute('lang',val);}
+    document.querySelectorAll('.preview button[data-set="'+set+'"]').forEach(function(b){
+      b.setAttribute('aria-pressed',String(b.getAttribute('data-val')===val));
+    });
+    try{localStorage.setItem('matilde-'+set,val);}catch(e){}
+  }
+  ['lang','dir','accent'].forEach(function(set){
+    var saved=null;
+    try{saved=localStorage.getItem('matilde-'+set);}catch(e){}
+    if(saved){apply(set,saved);}
+  });
+  document.querySelectorAll('.preview button').forEach(function(b){
+    b.addEventListener('click',function(){apply(b.getAttribute('data-set'),b.getAttribute('data-val'));});
+  });
+
+  /* ---- demo cart ---- */
+  var cart={};
+  try{cart=JSON.parse(localStorage.getItem('matilde-cart')||'{}');}catch(e){cart={};}
+  var drawer=document.getElementById('cartDrawer'),
+      overlay=document.getElementById('overlay'),
+      itemsEl=document.getElementById('cartItems'),
+      countEl=document.getElementById('cartCount'),
+      totalEl=document.getElementById('cartTotal');
+  function save(){try{localStorage.setItem('matilde-cart',JSON.stringify(cart));}catch(e){}}
+  function lang(){return root.getAttribute('data-lang')||'en';}
+  function render(){
+    var keys=Object.keys(cart),n=0,total=0;
+    itemsEl.innerHTML='';
+    if(!keys.length){
+      itemsEl.innerHTML='<p class="drawer-empty">'+(lang()==='es'?'Tu carrito está vacío.':'Your cart is empty.')+'</p>';
+    }
+    keys.forEach(function(k){
+      var it=cart[k];n+=it.qty;total+=it.qty*it.price;
+      var row=document.createElement('div');row.className='ci';
+      var img=document.createElement('img');img.src=it.img;img.alt='';
+      var mid=document.createElement('div');
+      var nm=document.createElement('div');nm.className='ci-name';nm.textContent=(lang()==='es'?it.es:it.en);
+      var qty=document.createElement('div');qty.className='ci-qty';qty.textContent=(lang()==='es'?'Cantidad: ':'Quantity: ')+it.qty;
+      var rm=document.createElement('button');rm.className='ci-remove';rm.textContent=(lang()==='es'?'Quitar':'Remove');
+      rm.addEventListener('click',function(){delete cart[k];save();render();});
+      mid.appendChild(nm);mid.appendChild(qty);mid.appendChild(rm);
+      var pr=document.createElement('div');pr.className='ci-price';pr.textContent='$'+(it.qty*it.price);
+      row.appendChild(img);row.appendChild(mid);row.appendChild(pr);
+      itemsEl.appendChild(row);
+    });
+    countEl.textContent=n;countEl.setAttribute('data-empty',String(n===0));
+    totalEl.textContent='$'+total;
+  }
+  function openCart(){drawer.classList.add('open');overlay.classList.add('open');document.getElementById('cartClose').focus();}
+  function closeCart(){drawer.classList.remove('open');overlay.classList.remove('open');document.getElementById('cartBtn').focus();}
+  document.getElementById('cartBtn').addEventListener('click',openCart);
+  document.getElementById('cartClose').addEventListener('click',closeCart);
+  overlay.addEventListener('click',closeCart);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&drawer.classList.contains('open'))closeCart();});
+  var PRODUCTS={};
+  document.querySelectorAll('.add-btn').forEach(function(b){
+    PRODUCTS[b.getAttribute('data-id')]={en:b.getAttribute('data-en'),es:b.getAttribute('data-es'),price:+b.getAttribute('data-price'),img:b.getAttribute('data-img')};
+  });
+  function addItem(id,btn){
+    var p=PRODUCTS[id];if(!p)return;
+    if(!cart[id])cart[id]={en:p.en,es:p.es,price:p.price,img:p.img,qty:0};
+    cart[id].qty++;save();render();
+    if(btn){
+      btn.classList.add('added');
+      var prev=btn.innerHTML;
+      btn.innerHTML=(lang()==='es'?'Añadido':'Added');
+      setTimeout(function(){btn.classList.remove('added');btn.innerHTML=prev;},900);
+    }
+  }
+  document.querySelectorAll('.add-btn').forEach(function(b){
+    b.addEventListener('click',function(){addItem(b.getAttribute('data-id'),b);});
+  });
+  document.querySelectorAll('.preview button[data-set="lang"]').forEach(function(b){
+    b.addEventListener('click',function(){render();if(lbId)lbRender();});
+  });
+  render();
+
+  /* ---- image lightbox with galleries ---- */
+  var GALLERIES={
+    wallhanging:['assets/wallhanging.png','assets/wallhanging-detail.png','assets/knots-macro.png'],
+    mirror:['assets/mirror.png','assets/mirror-2.png','assets/mirror-3.png'],
+    tree:['assets/tree.png'],
+    dreamcatcher:['assets/dreamcatcher.png','assets/dreamcatcher-2.png','assets/dreamcatcher-3.png'],
+    coasters:['assets/coasters.png','assets/coasters-2.png','assets/coasters-3.png'],
+    earrings:['assets/earrings.png']
+  };
+  var lb=document.getElementById('lightbox'),
+      lbImg=document.getElementById('lbImg'),
+      lbName=document.getElementById('lbName'),
+      lbPrice=document.getElementById('lbPrice'),
+      lbCount=document.getElementById('lbCount'),
+      lbAdd=document.getElementById('lbAdd'),
+      lbPrev=document.getElementById('lbPrev'),
+      lbNext=document.getElementById('lbNext'),
+      lbId=null,lbIdx=0;
+  function lbRender(){
+    var g=GALLERIES[lbId],p=PRODUCTS[lbId];
+    lbImg.src=g[lbIdx];
+    lbImg.alt=(lang()==='es'?p.es:p.en);
+    lbName.textContent=(lang()==='es'?p.es:p.en);
+    lbPrice.textContent='$'+p.price;
+    lbCount.textContent=g.length>1?(lbIdx+1)+' / '+g.length:'';
+    lbAdd.textContent=(lang()==='es'?'Añadir al carrito':'Add to cart');
+    lbPrev.hidden=lbNext.hidden=(g.length<2);
+  }
+  function lbOpen(id){lbId=id;lbIdx=0;lbRender();lb.classList.add('open');document.getElementById('lbClose').focus();}
+  function lbCloseFn(){lb.classList.remove('open');lbId=null;}
+  function lbStep(d){var g=GALLERIES[lbId];lbIdx=(lbIdx+d+g.length)%g.length;lbRender();}
+  document.querySelectorAll('.imgbtn').forEach(function(b){
+    b.addEventListener('click',function(){lbOpen(b.getAttribute('data-lb'));});
+  });
+  document.getElementById('lbClose').addEventListener('click',lbCloseFn);
+  lbPrev.addEventListener('click',function(){lbStep(-1);});
+  lbNext.addEventListener('click',function(){lbStep(1);});
+  lbAdd.addEventListener('click',function(){addItem(lbId,lbAdd);});
+  lb.addEventListener('click',function(e){if(e.target===lb)lbCloseFn();});
+  document.addEventListener('keydown',function(e){
+    if(!lb.classList.contains('open'))return;
+    if(e.key==='Escape')lbCloseFn();
+    if(e.key==='ArrowLeft')lbStep(-1);
+    if(e.key==='ArrowRight')lbStep(1);
+  });
+})();
+</script>
+</body>
+</html>
